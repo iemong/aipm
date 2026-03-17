@@ -1,0 +1,15 @@
+{
+  "name": "aipm",
+  "version": "0.1.0",
+  "description": "AI Personal Project Manager - Slack bot powered by Claude Agent SDK",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "setup": "bun run scripts/setup.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.2",
+    "@slack/bolt": "^4.1.0",
+    "zod": "^4.3.6"
+  }
+}
