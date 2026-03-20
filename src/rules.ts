@@ -11,6 +11,7 @@ const reactionRuleSchema = z.object({
 
 const messageRuleSchema = z.object({
   guard: z.boolean().optional(),
+  pattern: z.string().optional(),
   prompt: z.string(),
 });
 

@@ -17,6 +17,7 @@ import { loadBashWhitelist } from "./bash-guard";
 import { cleanExpiredSessions } from "./session";
 import { parseHandoffFromResult } from "./handoff";
 import { appendHandoffPrompt, listActivities, createActivity } from "./activity";
+import { appendTask, appendMemo } from "./notes";
 
 const app = new App({
   token: config.slackBotToken,
@@ -141,6 +142,7 @@ app.message(async ({ message, say, client }) => {
 
   const rule = getMessageRule(message.channel);
   if (!rule) return;
+  if (rule.pattern && !new RegExp(rule.pattern).test(message.text)) return;
   if (rule.guard && !(await shouldProcess(message.text, message.channel))) return;
 
   const userId = "user" in message ? (message.user as string | undefined) : undefined;
@@ -344,23 +346,48 @@ function formatHandoffMessage(handoff: string): string {
 }
 
 // --------------------------------------------------
+// Notes応答パース
+// --------------------------------------------------
+
+async function tryAppendNote(slug: string, text: string): Promise<string | null> {
+  const taskMatch = text.match(/^TASK:\s*(.+)$/m);
+  if (taskMatch) {
+    const t = taskMatch[1].trim();
+    return (await appendTask(slug, t)) ? `タスクを記録しました: ${t}` : null;
+  }
+  const memoMatch = text.match(/^MEMO:\s*(.+)$/m);
+  if (memoMatch) {
+    const m = memoMatch[1].trim();
+    return (await appendMemo(slug, m)) ? `メモを記録しました: ${m}` : null;
+  }
+  return null;
+}
+
+async function processNotesDirective(cleanText: string, channel: string): Promise<string | null> {
+  const project = await findProjectByChannel(channel);
+  if (!project?.config.features.notes) return null;
+  return tryAppendNote(project.slug, cleanText);
+}
+
+// --------------------------------------------------
 // エージェント応答の統合処理
 // --------------------------------------------------
+
+async function sendCleanText(cleanText: string, ctx: HitlContext): Promise<void> {
+  const notesMsg = await processNotesDirective(cleanText, ctx.channel);
+  await ctx.send({ text: notesMsg ?? cleanText, thread_ts: ctx.threadTs });
+}
 
 async function processAgentResult(result: string, ctx: HitlContext): Promise<void> {
   const { handoff, cleanText: textAfterHandoff } = parseHandoffFromResult(result);
   const { hitl, cleanText } = parseHitlFromResult(textAfterHandoff);
 
-  if (cleanText && cleanText !== "NO_ACTION") {
-    await ctx.send({ text: cleanText, thread_ts: ctx.threadTs });
-  }
+  if (cleanText && cleanText !== "NO_ACTION") await sendCleanText(cleanText, ctx);
   if (handoff) {
     await saveHandoffToActivity(handoff, ctx.channel);
     await ctx.send({ text: formatHandoffMessage(handoff), thread_ts: ctx.threadTs });
   }
-  if (hitl) {
-    await handleHitl(hitl, ctx);
-  }
+  if (hitl) await handleHitl(hitl, ctx);
 }
 
 export interface AgentResultOpts {

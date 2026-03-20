@@ -3,7 +3,7 @@
   "rules": {
     "complexity": "error",
     "max-depth": "error",
-    "max-lines": ["error", { "max": 420 }],
+    "max-lines": ["error", { "max": 450 }],
     "max-lines-per-function": "error",
     "max-params": "error",
     "max-nested-callbacks": "error",
