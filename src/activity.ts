@@ -110,6 +110,33 @@ function serializeMeta(meta: ActivityMeta): string {
 // CRUD
 // --------------------------------------------------
 
+function buildActivityMeta(input: { trigger: string; slack_permalink?: string; tags?: string[] }): {
+  meta: ActivityMeta;
+  id: string;
+  date: string;
+} {
+  const id = Date.now().toString(36);
+  const date = new Date().toISOString().split("T")[0];
+  const meta: ActivityMeta = {
+    id,
+    date,
+    status: "investigating",
+    trigger: input.trigger,
+    slack_permalink: input.slack_permalink,
+    tags: input.tags || [],
+  };
+  return { meta, id, date };
+}
+
+function buildActivityFilename(trigger: string, id: string, date: string): string {
+  const slug = trigger
+    .slice(0, 50)
+    .toLowerCase()
+    .replace(/[^a-z0-9\u3000-\u9fff]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `${date}-${slug || id}.md`;
+}
+
 export async function createActivity(
   projectSlug: string,
   input: {
@@ -122,30 +149,11 @@ export async function createActivity(
   await mkdir(dir, { recursive: true });
 
   const template = await loadTemplate();
-  const id = Date.now().toString(36);
-  const date = new Date().toISOString().split("T")[0];
+  const { meta, id, date } = buildActivityMeta(input);
+  const { body } = parseFrontmatter(template.replace("{{id}}", id).replace("{{date}}", date));
+  const filename = buildActivityFilename(input.trigger, id, date);
 
-  const content = template.replace("{{id}}", id).replace("{{date}}", date);
-
-  const { body } = parseFrontmatter(content);
-  const meta: ActivityMeta = {
-    id,
-    date,
-    status: "investigating",
-    trigger: input.trigger,
-    slack_permalink: input.slack_permalink,
-    tags: input.tags || [],
-  };
-
-  const slug = input.trigger
-    .slice(0, 50)
-    .toLowerCase()
-    .replace(/[^a-z0-9\u3000-\u9fff]+/g, "-")
-    .replace(/^-|-$/g, "");
-  const filename = `${date}-${slug || id}.md`;
-  const fullContent = serializeMeta(meta) + "\n" + body;
-
-  await writeFile(join(dir, filename), fullContent, "utf-8");
+  await writeFile(join(dir, filename), serializeMeta(meta) + "\n" + body, "utf-8");
   console.log(`[activity] Created: ${filename}`);
   return { meta, body };
 }
@@ -159,6 +167,15 @@ export async function getActivity(projectSlug: string, filename: string): Promis
   }
 }
 
+function insertAfterSection(content: string, section: string, line: string): string | null {
+  const sectionHeader = `## ${section}`;
+  const idx = content.indexOf(sectionHeader);
+  if (idx === -1) return null;
+  const insertPos = idx + sectionHeader.length;
+  return content.slice(0, insertPos) + "\n" + line + content.slice(insertPos);
+}
+
+// oxlint-disable-next-line max-params -- 既存公開APIを維持
 export async function appendToActivity(
   projectSlug: string,
   filename: string,
@@ -168,13 +185,8 @@ export async function appendToActivity(
   const filepath = join(getActivityDir(projectSlug), filename);
   try {
     const content = await readFile(filepath, "utf-8");
-    const sectionHeader = `## ${section}`;
-    const idx = content.indexOf(sectionHeader);
-    if (idx === -1) return false;
-
-    const insertPos = idx + sectionHeader.length;
-    const updated = content.slice(0, insertPos) + "\n" + line + content.slice(insertPos);
-
+    const updated = insertAfterSection(content, section, line);
+    if (!updated) return false;
     await writeFile(filepath, updated, "utf-8");
     return true;
   } catch {
@@ -208,6 +220,19 @@ export async function appendHandoffPrompt(
   return appendToActivity(projectSlug, filename, "成果", block);
 }
 
+async function readActivityMeta(
+  dir: string,
+  file: string,
+): Promise<{ filename: string; meta: ActivityMeta } | null> {
+  if (!file.endsWith(".md")) return null;
+  try {
+    const content = await readFile(join(dir, file), "utf-8");
+    return { filename: file, meta: parseActivity(content).meta };
+  } catch {
+    return null;
+  }
+}
+
 export async function listActivities(
   projectSlug: string,
   filter?: { status?: ActivityStatus },
@@ -220,18 +245,11 @@ export async function listActivities(
     return [];
   }
 
-  const results: { filename: string; meta: ActivityMeta }[] = [];
-  for (const file of files) {
-    if (!file.endsWith(".md")) continue;
-    try {
-      const content = await readFile(join(dir, file), "utf-8");
-      const { meta } = parseActivity(content);
-      if (filter?.status && meta.status !== filter.status) continue;
-      results.push({ filename: file, meta });
-    } catch {
-      // skip invalid
-    }
-  }
-
-  return results.sort((a, b) => b.meta.date.localeCompare(a.meta.date));
+  const entries = await Promise.all(files.map((f) => readActivityMeta(dir, f)));
+  return entries
+    .filter(
+      (e): e is NonNullable<typeof e> =>
+        !!e && (!filter?.status || e.meta.status === filter.status),
+    )
+    .sort((a, b) => b.meta.date.localeCompare(a.meta.date));
 }

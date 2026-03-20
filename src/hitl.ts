@@ -37,27 +37,9 @@ export function parseHitlFromResult(text: string): {
 /**
  * HITLリクエストをSlack Block Kitブロックに変換する
  */
-export function buildHitlBlocks(requestId: string, hitl: HitlRequest): KnownBlock[] {
-  const blocks: KnownBlock[] = [
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `*確認が必要です*\n\n${hitl.question}`,
-      },
-    },
-  ];
-
-  if (hitl.context) {
-    blocks.push({
-      type: "context",
-      elements: [{ type: "mrkdwn", text: hitl.context }],
-    });
-  }
-
+function buildActionsBlock(requestId: string, hitl: HitlRequest): KnownBlock {
   if (hitl.type === "choice" && hitl.options) {
-    // 選択肢ボタンを生成
-    blocks.push({
+    return {
       type: "actions",
       block_id: `hitl_actions_${requestId}`,
       elements: hitl.options.map((opt, i) => ({
@@ -66,39 +48,46 @@ export function buildHitlBlocks(requestId: string, hitl: HitlRequest): KnownBloc
         action_id: `hitl:choice:${requestId}:${i}`,
         value: opt,
       })),
-    });
-  } else {
-    // confirm / freeform: 4ボタン（はい/いいえ/はい、ただし.../自由回答）
-    blocks.push({
-      type: "actions",
-      block_id: `hitl_actions_${requestId}`,
-      elements: [
-        {
-          type: "button",
-          text: { type: "plain_text", text: "はい", emoji: true },
-          action_id: `hitl:yes:${requestId}`,
-          style: "primary",
-        },
-        {
-          type: "button",
-          text: { type: "plain_text", text: "いいえ", emoji: true },
-          action_id: `hitl:no:${requestId}`,
-          style: "danger",
-        },
-        {
-          type: "button",
-          text: { type: "plain_text", text: "はい、ただし...", emoji: true },
-          action_id: `hitl:yes_but:${requestId}`,
-        },
-        {
-          type: "button",
-          text: { type: "plain_text", text: "自由回答", emoji: true },
-          action_id: `hitl:freeform:${requestId}`,
-        },
-      ],
-    });
+    };
   }
+  return {
+    type: "actions",
+    block_id: `hitl_actions_${requestId}`,
+    elements: [
+      {
+        type: "button",
+        text: { type: "plain_text", text: "はい", emoji: true },
+        action_id: `hitl:yes:${requestId}`,
+        style: "primary",
+      },
+      {
+        type: "button",
+        text: { type: "plain_text", text: "いいえ", emoji: true },
+        action_id: `hitl:no:${requestId}`,
+        style: "danger",
+      },
+      {
+        type: "button",
+        text: { type: "plain_text", text: "はい、ただし...", emoji: true },
+        action_id: `hitl:yes_but:${requestId}`,
+      },
+      {
+        type: "button",
+        text: { type: "plain_text", text: "自由回答", emoji: true },
+        action_id: `hitl:freeform:${requestId}`,
+      },
+    ],
+  };
+}
 
+export function buildHitlBlocks(requestId: string, hitl: HitlRequest): KnownBlock[] {
+  const blocks: KnownBlock[] = [
+    { type: "section", text: { type: "mrkdwn", text: `*確認が必要です*\n\n${hitl.question}` } },
+  ];
+  if (hitl.context) {
+    blocks.push({ type: "context", elements: [{ type: "mrkdwn", text: hitl.context }] });
+  }
+  blocks.push(buildActionsBlock(requestId, hitl));
   return blocks;
 }
 

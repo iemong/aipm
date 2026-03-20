@@ -14,36 +14,31 @@ const DEFAULT_PROMPT =
  * Haiku でメッセージを事前判定する（Claude Agent SDK 経由）。
  * maxTurns: 1、ツールなしで軽量に実行。
  */
-export async function shouldProcess(message: string, channelId?: string): Promise<boolean> {
+async function runGuardQuery(message: string): Promise<string> {
   const { model, prompt } = getGuardConfig();
+  let resultText = "";
+  for await (const msg of query({
+    prompt: `${prompt || DEFAULT_PROMPT}\n\nメッセージ: ${message}`,
+    options: {
+      model: model || "claude-haiku-4-5-20251001",
+      cwd: PROJECT_ROOT,
+      maxTurns: 1,
+      allowedTools: [],
+      permissionMode: "bypassPermissions",
+      systemPrompt: "YまたはNの1文字だけで回答してください。",
+    },
+  })) {
+    if ("result" in msg) resultText = msg.result as string;
+  }
+  return resultText;
+}
 
+export async function shouldProcess(message: string, channelId?: string): Promise<boolean> {
   try {
-    let resultText = "";
-
-    for await (const msg of query({
-      prompt: `${prompt || DEFAULT_PROMPT}\n\nメッセージ: ${message}`,
-      options: {
-        model: model || "claude-haiku-4-5-20251001",
-        cwd: PROJECT_ROOT,
-        maxTurns: 1,
-        allowedTools: [],
-        permissionMode: "bypassPermissions",
-        systemPrompt: "YまたはNの1文字だけで回答してください。",
-      },
-    })) {
-      if ("result" in msg) {
-        resultText = msg.result as string;
-      }
-    }
-
+    const resultText = await runGuardQuery(message);
     const pass = resultText.trim().toUpperCase().startsWith("Y");
-    const decision = pass ? "Y" : "N";
-
-    await logGuardDecision(decision, message, channelId);
-
-    if (!pass) {
-      console.log(`[guard] スキップ: "${message.slice(0, 50)}..."`);
-    }
+    await logGuardDecision(pass ? "Y" : "N", message, channelId);
+    if (!pass) console.log(`[guard] スキップ: "${message.slice(0, 50)}..."`);
     return pass;
   } catch (error) {
     console.error("[guard] Error:", error);

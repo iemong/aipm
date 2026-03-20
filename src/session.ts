@@ -41,28 +41,29 @@ export async function deleteSession(contextKey: string): Promise<void> {
   }
 }
 
+async function isExpired(file: string): Promise<boolean> {
+  try {
+    const raw = await readFile(join(SESSIONS_DIR, file), "utf-8");
+    return Date.now() - JSON.parse(raw).updatedAt > MAX_AGE_MS;
+  } catch {
+    return false;
+  }
+}
+
 export async function cleanExpiredSessions(): Promise<number> {
   let cleaned = 0;
   try {
     const files = await readdir(SESSIONS_DIR);
     for (const file of files) {
       if (!file.endsWith(".json")) continue;
-      try {
-        const raw = await readFile(join(SESSIONS_DIR, file), "utf-8");
-        const data = JSON.parse(raw);
-        if (Date.now() - data.updatedAt > MAX_AGE_MS) {
-          await unlink(join(SESSIONS_DIR, file));
-          cleaned++;
-        }
-      } catch {
-        // skip invalid files
+      if (await isExpired(file)) {
+        await unlink(join(SESSIONS_DIR, file));
+        cleaned++;
       }
     }
   } catch {
     // directory doesn't exist yet
   }
-  if (cleaned > 0) {
-    console.log(`[session] Cleaned ${cleaned} expired sessions`);
-  }
+  if (cleaned > 0) console.log(`[session] Cleaned ${cleaned} expired sessions`);
   return cleaned;
 }

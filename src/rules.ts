@@ -50,21 +50,25 @@ let rules: Rules | null = null;
 // Load
 // --------------------------------------------------
 
+function handleLoadError(error: unknown): never | void {
+  if (error instanceof z.ZodError) {
+    console.error("[rules] バリデーションエラー:");
+    for (const issue of error.issues) {
+      console.error(`  ${issue.path.join(".")}: ${issue.message}`);
+    }
+    process.exit(1);
+  }
+  rules = { channels: {} };
+  console.warn("[rules] rules.ts が見つかりません。デフォルト設定を使用します。");
+}
+
 export async function loadRules(): Promise<Rules> {
   try {
     const mod = await import("../rules");
     const raw = mod.default ?? mod;
     rules = rulesSchema.parse(raw);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("[rules] バリデーションエラー:");
-      for (const issue of error.issues) {
-        console.error(`  ${issue.path.join(".")}: ${issue.message}`);
-      }
-      process.exit(1);
-    }
-    rules = { channels: {} };
-    console.warn("[rules] rules.ts が見つかりません。デフォルト設定を使用します。");
+    handleLoadError(error);
   }
   return rules;
 }
