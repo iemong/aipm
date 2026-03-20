@@ -88,5 +88,5 @@ Agent → execute_command("git log -5")
 | `SLACK_BOT_TOKEN` | Slack Bot Token (xoxb-) |
 | `SLACK_APP_TOKEN` | Slack App-Level Token (xapp-) |
 | `SLACK_SIGNING_SECRET` | Slack Signing Secret |
-| `SLACK_HITL_CHANNEL` | Bash Guard HITL 承認チャンネル ID |
+| `SLACK_HITL_CHANNEL` | Bash Guard HITL 承認先（チャンネルID `C...` またはユーザーID `U...` でDM） |
 | `AIPM_HITL_BRIDGE_PORT` | HITL Bridge ポート (default: 3456) |

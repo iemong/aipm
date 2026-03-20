@@ -79,10 +79,12 @@ async function main() {
 
   // ---- HITL Channel ----
   console.log("");
-  console.log("[Bash Guard] HITL承認チャンネル");
-  console.log("  ホワイトリスト外のBashコマンド実行時に承認を求めるチャンネルIDです。");
+  console.log("[Bash Guard] HITL承認先");
+  console.log("  ホワイトリスト外のBashコマンド実行時に承認を求める送信先です。");
+  console.log("  チャンネルID (C...) またはユーザーID (U...) を指定できます。");
+  console.log("  ユーザーIDを指定するとDMで承認リクエストが届きます。");
   console.log("  未指定の場合、ホワイトリスト外のコマンドは全て拒否されます。");
-  const hitlChannel = await ask("  チャンネルID (C..., Enterでスキップ): ");
+  const hitlChannel = await ask("  チャンネルID or ユーザーID (Enterでスキップ): ");
 
   // ---- Write .env ----
   const envLines = [

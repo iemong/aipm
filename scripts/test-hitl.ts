@@ -62,7 +62,7 @@ async function main() {
   console.log("  ※ bun run dev が起動中の場合は停止してください（イベントが競合します）");
   console.log("");
 
-  const channelId = await ask("  テスト用チャンネルID (C...): ");
+  const channelId = await ask("  テスト先 チャンネルID (C...) or ユーザーID (U...): ");
   if (!channelId) {
     console.error("  チャンネルIDは必須です。");
     process.exit(1);
