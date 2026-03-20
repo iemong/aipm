@@ -26,7 +26,6 @@ export const projectResourcesSchema = z.object({
 
 export const projectConfigSchema = z.object({
   name: z.string(),
-  teamId: z.string().optional(),
   channelId: z.string(),
   channelName: z.string().optional(),
   description: z.string().optional(),
@@ -101,14 +100,7 @@ export async function loadProjects(): Promise<Project[]> {
 
 export async function findProjectByChannel(
   channelId: string,
-  teamId?: string,
 ): Promise<Project | undefined> {
   const projects = await loadProjects();
-  if (teamId) {
-    const exact = projects.find(
-      (p) => p.config.channelId === channelId && p.config.teamId === teamId,
-    );
-    if (exact) return exact;
-  }
   return projects.find((p) => p.config.channelId === channelId);
 }

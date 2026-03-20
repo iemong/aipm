@@ -77,14 +77,13 @@ function buildProjectContext(project: Project): string {
 // --------------------------------------------------
 app.event("app_mention", async ({ event, say, client }) => {
   const threadTs = event.thread_ts || event.ts;
-  const teamId = "team" in event ? (event.team as string) : undefined;
   const contextKey = `${event.channel}-${threadTs}`;
 
   const userInfo = await client.users.info({ user: event.user });
   const userName =
     userInfo.user?.real_name || userInfo.user?.name || "unknown";
 
-  const project = await findProjectByChannel(event.channel, teamId);
+  const project = await findProjectByChannel(event.channel);
   const promptParts = [];
   if (project) promptParts.push(buildProjectContext(project));
   promptParts.push(`[Slack] ${userName} からのメンション:`);
@@ -295,7 +294,11 @@ export async function handleAgentResult(
 
     const answer = await waitForHitl(requestId);
     const followUp = await askAgent(`ユーザーの回答: ${answer}`, contextKey);
-    await saveDecision(channel, hitl.question, answer, hitl.context);
+    try {
+      await saveDecision(channel, hitl.question, answer, hitl.context);
+    } catch (e) {
+      console.error("[knowledge] ADR保存に失敗:", e);
+    }
 
     const { cleanText: followUpText } = parseHitlFromResult(followUp);
     if (followUpText && followUpText !== "NO_ACTION") {
@@ -334,7 +337,11 @@ export async function handleAgentResultDirect(
 
     const answer = await waitForHitl(requestId);
     const followUp = await askAgent(`ユーザーの回答: ${answer}`, contextKey);
-    await saveDecision(channel, hitl.question, answer, hitl.context);
+    try {
+      await saveDecision(channel, hitl.question, answer, hitl.context);
+    } catch (e) {
+      console.error("[knowledge] ADR保存に失敗:", e);
+    }
 
     const { cleanText: followUpText } = parseHitlFromResult(followUp);
     if (followUpText && followUpText !== "NO_ACTION") {
