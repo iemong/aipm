@@ -78,10 +78,9 @@ const rules = {
 
 ## knowledgeのプロジェクトスコープ
 
-Slackイベント発生時、チャンネルIDからプロジェクトを逆引きする:
+Slackイベント発生時、チャンネルIDからプロジェクトを逆引きし、`projects/{slug}/knowledge/` にADRを保存する。
 
-- **プロジェクトが見つかった場合**: `projects/{slug}/knowledge/` にADRを保存
-- **見つからなかった場合**: 従来の `knowledge/{channelId}/` にフォールバック
+チャンネルには必ずプロジェクトが紐づいている必要がある。プロジェクト未登録のチャンネルでknowledge保存が発生した場合はエラーになる。
 
 ## チャンネルリソース
 
@@ -111,7 +110,6 @@ const config = {
 ```typescript
 interface ProjectConfig {
   name: string;
-  teamId?: string;        // Slackワークスペース
   channelId: string;      // Slackチャンネル（1:1）
   channelName?: string;
   description?: string;
