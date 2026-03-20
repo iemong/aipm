@@ -24,6 +24,12 @@ export const projectResourcesSchema = z.object({
   instructions: z.string().optional(),
 });
 
+export const projectFeaturesSchema = z
+  .object({
+    notes: z.boolean().default(false),
+  })
+  .default({});
+
 export const projectConfigSchema = z.object({
   name: z.string(),
   channelId: z.string(),
@@ -36,6 +42,7 @@ export const projectConfigSchema = z.object({
     })
     .optional(),
   resources: projectResourcesSchema.optional(),
+  features: projectFeaturesSchema,
   createdAt: z.string(),
 });
 
