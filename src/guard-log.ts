@@ -1,9 +1,6 @@
 import { appendFile, mkdir } from "node:fs/promises";
-import { join, resolve } from "node:path";
-
-const GUARD_LOGS_DIR =
-  process.env.MIMAMORI_GUARD_LOGS_DIR ||
-  resolve(import.meta.dir, "..", "guard-logs");
+import { join } from "node:path";
+import { findProjectByChannel, getProjectsDir } from "./project";
 
 export interface GuardLogEntry {
   ts: string;
@@ -18,10 +15,16 @@ export async function logGuardDecision(
   channelId?: string,
 ): Promise<void> {
   try {
-    await mkdir(GUARD_LOGS_DIR, { recursive: true });
+    if (!channelId) return;
+
+    const project = await findProjectByChannel(channelId);
+    if (!project) return;
+
+    const logsDir = join(getProjectsDir(), project.slug, "guard-logs");
+    await mkdir(logsDir, { recursive: true });
 
     const date = new Date().toISOString().split("T")[0];
-    const filepath = join(GUARD_LOGS_DIR, `${date}.jsonl`);
+    const filepath = join(logsDir, `${date}.jsonl`);
 
     const entry: GuardLogEntry = {
       ts: new Date().toISOString(),

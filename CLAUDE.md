@@ -58,7 +58,7 @@ src/
 ├── hitl-bridge.ts    # Bash Guard 用 HTTP HITL ブリッジ
 ├── bash-guard.ts     # Bash ホワイトリスト管理
 ├── guard.ts          # メッセージガード（LLM判定）
-├── guard-log.ts      # guard判定ログ（JSONL）
+├── guard-log.ts      # guard判定ログ（プロジェクトスコープ、JSONL）
 ├── session.ts        # セッション永続化（ファイルベース）
 ├── __tests__/        # テスト
 scripts/
@@ -67,9 +67,8 @@ scripts/
 ├── test-hitl.ts      # HITL動作確認スクリプト
 mcp-servers/
 └── bash-guard/       # Bash Guard MCPサーバー（HITL連動）
-projects/             # プロジェクト設定 + プロジェクトスコープknowledge
+projects/             # プロジェクト設定 + knowledge + guard-logs
 sessions/             # セッション永続化（.gitignore済み）
-guard-logs/           # guard判定ログ（.gitignore済み）
 rules.ts              # チャンネルルール定義（ユーザー編集）
 bash-whitelist.ts     # Bash ホワイトリスト定義（ユーザー編集）
 persona.md            # ペルソナ設定
