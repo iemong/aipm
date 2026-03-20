@@ -9,12 +9,7 @@ import {
   buildFreeformModal,
 } from "./hitl";
 import { saveDecision } from "./knowledge";
-import {
-  loadRules,
-  getMessageRule,
-  getReactionRule,
-  isWatchedChannel,
-} from "./rules";
+import { loadRules, getMessageRule, getReactionRule, isWatchedChannel } from "./rules";
 import { shouldProcess } from "./guard";
 import { findProjectByChannel, type Project } from "./project";
 import { startHitlBridge } from "./hitl-bridge";
@@ -35,17 +30,11 @@ const app = new App({
 // --------------------------------------------------
 
 function buildProjectContext(project: Project): string {
-  const lines = [
-    `[プロジェクト] ${project.config.name} (${project.slug})`,
-  ];
-  if (project.config.channelName)
-    lines.push(`  チャンネル: ${project.config.channelName}`);
-  if (project.config.description)
-    lines.push(`  説明: ${project.config.description}`);
+  const lines = [`[プロジェクト] ${project.config.name} (${project.slug})`];
+  if (project.config.channelName) lines.push(`  チャンネル: ${project.config.channelName}`);
+  if (project.config.description) lines.push(`  説明: ${project.config.description}`);
   if (project.config.github)
-    lines.push(
-      `  GitHub: ${project.config.github.owner}/${project.config.github.repo}`,
-    );
+    lines.push(`  GitHub: ${project.config.github.owner}/${project.config.github.repo}`);
   const res = project.config.resources;
   if (res) {
     if (res.directories.length > 0) {
@@ -82,8 +71,7 @@ app.event("app_mention", async ({ event, say, client }) => {
   const contextKey = `${event.channel}-${threadTs}`;
 
   const userInfo = await client.users.info({ user: event.user });
-  const userName =
-    userInfo.user?.real_name || userInfo.user?.name || "unknown";
+  const userName = userInfo.user?.real_name || userInfo.user?.name || "unknown";
 
   const project = await findProjectByChannel(event.channel);
   const promptParts = [];
@@ -127,13 +115,7 @@ app.event("reaction_added", async ({ event, client }) => {
   const prompt = promptParts.join("\n");
 
   const agentResult = await askAgent(prompt, contextKey);
-  await handleAgentResultDirect(
-    agentResult,
-    contextKey,
-    channelId,
-    event.item.ts,
-    client,
-  );
+  await handleAgentResultDirect(agentResult, contextKey, channelId, event.item.ts, client);
 });
 
 // --------------------------------------------------
@@ -155,11 +137,9 @@ app.message(async ({ message, say, client }) => {
 
   const contextKey = `${message.channel}-${message.ts}`;
 
-  const userInfo = "user" in message && message.user
-    ? await client.users.info({ user: message.user })
-    : null;
-  const userName =
-    userInfo?.user?.real_name || userInfo?.user?.name || "unknown";
+  const userInfo =
+    "user" in message && message.user ? await client.users.info({ user: message.user }) : null;
+  const userName = userInfo?.user?.real_name || userInfo?.user?.name || "unknown";
 
   const project = await findProjectByChannel(message.channel);
   const promptParts = [];
@@ -175,14 +155,7 @@ app.message(async ({ message, say, client }) => {
   const prompt = promptParts.join("\n");
 
   const result = await askAgent(prompt, contextKey);
-  await handleAgentResult(
-    result,
-    contextKey,
-    message.channel,
-    message.ts,
-    say,
-    client,
-  );
+  await handleAgentResult(result, contextKey, message.channel, message.ts, say, client);
 });
 
 // --------------------------------------------------
@@ -239,8 +212,7 @@ app.action<BlockAction>(/^hitl:/, async ({ action, ack, body, client }) => {
 app.view<ViewSubmitAction>(/^hitl_modal:/, async ({ view, ack }) => {
   await ack();
   const requestId = view.callback_id.split(":")[1];
-  const answer =
-    view.state.values.answer_block?.answer_input?.value || "(空の回答)";
+  const answer = view.state.values.answer_block?.answer_input?.value || "(空の回答)";
   resolvePendingHitl(requestId, answer);
 });
 
@@ -249,7 +221,11 @@ app.view<ViewSubmitAction>(/^hitl_modal:/, async ({ view, ack }) => {
 // --------------------------------------------------
 
 export async function fetchOriginalMessage(
-  client: { conversations: { history: (args: Record<string, unknown>) => Promise<{ messages?: { text?: string }[] }> } },
+  client: {
+    conversations: {
+      history: (args: Record<string, unknown>) => Promise<{ messages?: { text?: string }[] }>;
+    };
+  },
   channel: string,
   ts: string,
 ): Promise<string | null> {
@@ -267,11 +243,7 @@ export async function handleAgentResult(
   contextKey: string,
   channel: string,
   threadTs: string,
-  say: (args: {
-    text: string;
-    thread_ts: string;
-    blocks?: unknown[];
-  }) => Promise<unknown>,
+  say: (args: { text: string; thread_ts: string; blocks?: unknown[] }) => Promise<unknown>,
   client: { chat: { postMessage: (args: Record<string, unknown>) => Promise<unknown> } },
 ) {
   // ハンドオフを先に抽出し、残りテキストからHITLを抽出
@@ -374,10 +346,7 @@ export async function handleAgentResultDirect(
 // ハンドオフ処理
 // --------------------------------------------------
 
-async function saveHandoffToActivity(
-  handoff: string,
-  channel: string,
-): Promise<void> {
+async function saveHandoffToActivity(handoff: string, channel: string): Promise<void> {
   const project = await findProjectByChannel(channel);
   if (!project) {
     console.warn("[handoff] プロジェクトが見つかりません:", channel);
@@ -395,7 +364,7 @@ async function saveHandoffToActivity(
     // なければ新規作成
     const titleMatch = handoff.match(/^#\s+タスク:\s*(.+)$/m);
     const trigger = titleMatch ? titleMatch[1].trim() : "ハンドオフプロンプト";
-    const activity = await createActivity(project.slug, { trigger });
+    await createActivity(project.slug, { trigger });
     const activityFiles = await listActivities(project.slug, { status: "investigating" });
     filename = activityFiles[0]?.filename;
     if (!filename) {
@@ -446,9 +415,7 @@ export { app };
 
 export async function start() {
   const rules = await loadRules();
-  const channelCount = Object.keys(rules.channels).filter(
-    (k) => !k.startsWith("_"),
-  ).length;
+  const channelCount = Object.keys(rules.channels).filter((k) => !k.startsWith("_")).length;
 
   await loadBashWhitelist();
   await cleanExpiredSessions();

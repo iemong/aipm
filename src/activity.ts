@@ -7,11 +7,7 @@ import { getProjectsDir } from "./project";
 // Schema
 // --------------------------------------------------
 
-export const activityStatusSchema = z.enum([
-  "investigating",
-  "resolved",
-  "stale",
-]);
+export const activityStatusSchema = z.enum(["investigating", "resolved", "stale"]);
 export type ActivityStatus = z.infer<typeof activityStatusSchema>;
 
 export const activitySchema = z.object({
@@ -129,9 +125,7 @@ export async function createActivity(
   const id = Date.now().toString(36);
   const date = new Date().toISOString().split("T")[0];
 
-  const content = template
-    .replace("{{id}}", id)
-    .replace("{{date}}", date);
+  const content = template.replace("{{id}}", id).replace("{{date}}", date);
 
   const { body } = parseFrontmatter(content);
   const meta: ActivityMeta = {
@@ -156,15 +150,9 @@ export async function createActivity(
   return { meta, body };
 }
 
-export async function getActivity(
-  projectSlug: string,
-  filename: string,
-): Promise<Activity | null> {
+export async function getActivity(projectSlug: string, filename: string): Promise<Activity | null> {
   try {
-    const content = await readFile(
-      join(getActivityDir(projectSlug), filename),
-      "utf-8",
-    );
+    const content = await readFile(join(getActivityDir(projectSlug), filename), "utf-8");
     return parseActivity(content);
   } catch {
     return null;
@@ -185,11 +173,7 @@ export async function appendToActivity(
     if (idx === -1) return false;
 
     const insertPos = idx + sectionHeader.length;
-    const updated =
-      content.slice(0, insertPos) +
-      "\n" +
-      line +
-      content.slice(insertPos);
+    const updated = content.slice(0, insertPos) + "\n" + line + content.slice(insertPos);
 
     await writeFile(filepath, updated, "utf-8");
     return true;
@@ -206,10 +190,7 @@ export async function updateActivityStatus(
   const filepath = join(getActivityDir(projectSlug), filename);
   try {
     const content = await readFile(filepath, "utf-8");
-    const updated = content.replace(
-      /^status: \w+$/m,
-      `status: ${status}`,
-    );
+    const updated = content.replace(/^status: \w+$/m, `status: ${status}`);
     await writeFile(filepath, updated, "utf-8");
     console.log(`[activity] ${filename} → ${status}`);
     return true;

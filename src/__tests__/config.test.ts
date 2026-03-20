@@ -19,16 +19,12 @@ describe("requireEnv", () => {
 
   test("未設定の環境変数でエラーを投げる", () => {
     delete process.env.TEST_VAR;
-    expect(() => requireEnv("TEST_VAR")).toThrow(
-      "環境変数 TEST_VAR が設定されていません",
-    );
+    expect(() => requireEnv("TEST_VAR")).toThrow("環境変数 TEST_VAR が設定されていません");
   });
 
   test("空文字の環境変数でエラーを投げる", () => {
     process.env.TEST_VAR = "";
-    expect(() => requireEnv("TEST_VAR")).toThrow(
-      "環境変数 TEST_VAR が設定されていません",
-    );
+    expect(() => requireEnv("TEST_VAR")).toThrow("環境変数 TEST_VAR が設定されていません");
   });
 });
 

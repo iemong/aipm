@@ -50,9 +50,7 @@ export function getBashWhitelist(): BashWhitelist {
 // --------------------------------------------------
 
 export function matchPattern(command: string, pattern: string): boolean {
-  const escaped = pattern
-    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*/g, ".*");
+  const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
   return new RegExp(`^${escaped}$`).test(command);
 }
 

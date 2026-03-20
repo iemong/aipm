@@ -35,8 +35,7 @@ const rules = {
       name: "#times_iemong",
       on_message: {
         guard: true,
-        prompt:
-          "投稿を分析し、必要に応じてナレッジに記録してください。",
+        prompt: "投稿を分析し、必要に応じてナレッジに記録してください。",
       },
       on_reaction: {
         memo: { prompt: "ナレッジに記録してください。" },

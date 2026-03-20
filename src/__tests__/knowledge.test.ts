@@ -6,9 +6,7 @@ import { getProjectsDir } from "../project";
 
 describe("プロジェクト未登録チャンネル", () => {
   test("saveDecisionがエラーを投げる", async () => {
-    expect(saveDecision("C_UNKNOWN", "Q", "A")).rejects.toThrow(
-      "プロジェクトが見つかりません",
-    );
+    expect(saveDecision("C_UNKNOWN", "Q", "A")).rejects.toThrow("プロジェクトが見つかりません");
   });
 });
 
@@ -59,10 +57,7 @@ export default config;
   });
 
   test("タグ付き", async () => {
-    const filepath = await saveDecision(projChannelId, "Q", "A", undefined, [
-      "t1",
-      "t2",
-    ]);
+    const filepath = await saveDecision(projChannelId, "Q", "A", undefined, ["t1", "t2"]);
     const content = await readFile(filepath, "utf-8");
     expect(content).toContain('"t1"');
     expect(content).toContain('"t2"');

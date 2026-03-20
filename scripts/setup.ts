@@ -127,10 +127,7 @@ async function main() {
     },
   };
 
-  await writeFile(
-    resolve(ROOT, ".mcp.json"),
-    JSON.stringify(mcpConfig, null, 2) + "\n",
-  );
+  await writeFile(resolve(ROOT, ".mcp.json"), JSON.stringify(mcpConfig, null, 2) + "\n");
   console.log("  -> .mcp.json を作成しました");
 
   // ---- Check rules.ts exists ----

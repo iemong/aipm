@@ -14,10 +14,7 @@ const DEFAULT_PROMPT =
  * Haiku でメッセージを事前判定する（Claude Agent SDK 経由）。
  * maxTurns: 1、ツールなしで軽量に実行。
  */
-export async function shouldProcess(
-  message: string,
-  channelId?: string,
-): Promise<boolean> {
+export async function shouldProcess(message: string, channelId?: string): Promise<boolean> {
   const { model, prompt } = getGuardConfig();
 
   try {

@@ -2,13 +2,9 @@ import { describe, test, expect, mock, beforeEach } from "bun:test";
 import { loadRules } from "../rules";
 
 // Access mocks from setup.ts
-const {
-  eventHandlers,
-  actionHandlers,
-  viewHandlers,
-  getMessageHandler,
-  mockQuery,
-} = (globalThis as any).__test;
+const { eventHandlers, actionHandlers, viewHandlers, getMessageHandler, mockQuery } = (
+  globalThis as any
+).__test;
 
 // Ensure rules are loaded and SDK returns sensible defaults
 beforeEach(async () => {
@@ -136,9 +132,7 @@ describe("reaction_added", () => {
   });
 
   test("元メッセージなしはスキップ", async () => {
-    mockClient.conversations.history.mockImplementation(() =>
-      Promise.resolve({ messages: [] }),
-    );
+    mockClient.conversations.history.mockImplementation(() => Promise.resolve({ messages: [] }));
     await handler()({
       event: { reaction: "memo", item: { channel: "C_TEST", ts: "5" } },
       client: mockClient,

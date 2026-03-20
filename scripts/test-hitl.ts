@@ -40,8 +40,7 @@ const testCases: { name: string; hitl: HitlRequest }[] = [
   {
     name: "freeform (自由回答)",
     hitl: {
-      question:
-        "HITL freeform テスト: 「自由回答」ボタンを押してモーダルに何か入力してください",
+      question: "HITL freeform テスト: 「自由回答」ボタンを押してモーダルに何か入力してください",
       type: "freeform",
       context: "モーダル入力のテストです",
     },
@@ -125,8 +124,7 @@ async function main() {
   app.view<ViewSubmitAction>(/^hitl_modal:/, async ({ view, ack }) => {
     await ack();
     const requestId = view.callback_id.split(":")[1];
-    const answer =
-      view.state.values.answer_block?.answer_input?.value || "(空の回答)";
+    const answer = view.state.values.answer_block?.answer_input?.value || "(空の回答)";
     resolvePendingHitl(requestId, answer);
   });
 

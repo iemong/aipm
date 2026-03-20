@@ -62,10 +62,7 @@ export async function listDecisions(channelId: string): Promise<string[]> {
   }
 }
 
-export async function readDecision(
-  channelId: string,
-  filename: string,
-): Promise<string> {
+export async function readDecision(channelId: string, filename: string): Promise<string> {
   const channelDir = await resolveKnowledgeDir(channelId);
   return readFile(join(channelDir, filename), "utf-8");
 }

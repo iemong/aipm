@@ -2,8 +2,7 @@ import { readFile, writeFile, readdir, unlink, mkdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 const SESSIONS_DIR =
-  process.env.MIMAMORI_SESSIONS_DIR ||
-  resolve(import.meta.dir, "..", "sessions");
+  process.env.MIMAMORI_SESSIONS_DIR || resolve(import.meta.dir, "..", "sessions");
 
 const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24時間
 
@@ -25,10 +24,7 @@ export async function getSession(contextKey: string): Promise<string | null> {
   }
 }
 
-export async function saveSession(
-  contextKey: string,
-  sessionId: string,
-): Promise<void> {
+export async function saveSession(contextKey: string, sessionId: string): Promise<void> {
   await mkdir(SESSIONS_DIR, { recursive: true });
   await writeFile(
     sessionPath(contextKey),

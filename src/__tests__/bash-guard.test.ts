@@ -1,9 +1,5 @@
 import { describe, test, expect, beforeAll } from "bun:test";
-import {
-  loadBashWhitelist,
-  isWhitelisted,
-  matchPattern,
-} from "../bash-guard";
+import { loadBashWhitelist, isWhitelisted, matchPattern } from "../bash-guard";
 
 beforeAll(async () => {
   await loadBashWhitelist();

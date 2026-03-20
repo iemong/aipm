@@ -37,10 +37,7 @@ export function parseHitlFromResult(text: string): {
 /**
  * HITLリクエストをSlack Block Kitブロックに変換する
  */
-export function buildHitlBlocks(
-  requestId: string,
-  hitl: HitlRequest,
-): KnownBlock[] {
+export function buildHitlBlocks(requestId: string, hitl: HitlRequest): KnownBlock[] {
   const blocks: KnownBlock[] = [
     {
       type: "section",
@@ -108,10 +105,7 @@ export function buildHitlBlocks(
 /**
  * HITLレスポンスを待機する（タイムアウト付き）
  */
-export function waitForHitl(
-  requestId: string,
-  timeoutMs = 300_000,
-): Promise<string> {
+export function waitForHitl(requestId: string, timeoutMs = 300_000): Promise<string> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       pendingRequests.delete(requestId);
@@ -130,10 +124,7 @@ export function waitForHitl(
 /**
  * 保留中のHITLリクエストを解決する
  */
-export function resolvePendingHitl(
-  requestId: string,
-  answer: string,
-): boolean {
+export function resolvePendingHitl(requestId: string, answer: string): boolean {
   const pending = pendingRequests.get(requestId);
   if (pending) {
     pending.resolve(answer);
@@ -146,10 +137,7 @@ export function resolvePendingHitl(
 /**
  * 自由記述用のモーダルViewを生成する
  */
-export function buildFreeformModal(
-  requestId: string,
-  title: string,
-): Record<string, unknown> {
+export function buildFreeformModal(requestId: string, title: string): Record<string, unknown> {
   return {
     type: "modal",
     callback_id: `hitl_modal:${requestId}`,

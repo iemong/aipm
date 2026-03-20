@@ -21,11 +21,7 @@ let server: Server | null = null;
 // Server
 // --------------------------------------------------
 
-export function startHitlBridge(
-  port: number,
-  client: SlackClient,
-  channel: string,
-): Server {
+export function startHitlBridge(port: number, client: SlackClient, channel: string): Server {
   server = Bun.serve({
     port,
     async fetch(req) {
@@ -45,8 +41,7 @@ export function startHitlBridge(
         const hitl: HitlRequest = {
           question: `コマンド実行の確認:\n\`\`\`\n${command}\n\`\`\`\nこのコマンドを実行しますか？`,
           type: "confirm",
-          context:
-            "エージェントがBashコマンドの実行を要求しています（ホワイトリスト外）",
+          context: "エージェントがBashコマンドの実行を要求しています（ホワイトリスト外）",
         };
 
         const blocks = buildHitlBlocks(requestId, hitl);
@@ -62,10 +57,7 @@ export function startHitlBridge(
         return Response.json({ approved, answer });
       } catch (error) {
         console.error("[hitl-bridge] Error:", error);
-        return Response.json(
-          { approved: false, answer: "エラー" },
-          { status: 500 },
-        );
+        return Response.json({ approved: false, answer: "エラー" }, { status: 500 });
       }
     },
   });

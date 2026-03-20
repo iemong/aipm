@@ -55,8 +55,7 @@ export interface Project {
 // --------------------------------------------------
 
 const PROJECTS_DIR =
-  process.env.MIMAMORI_PROJECTS_DIR ||
-  resolve(import.meta.dir, "..", "projects");
+  process.env.MIMAMORI_PROJECTS_DIR || resolve(import.meta.dir, "..", "projects");
 
 export function getProjectsDir(): string {
   return PROJECTS_DIR;
@@ -98,9 +97,7 @@ export async function loadProjects(): Promise<Project[]> {
   return projects;
 }
 
-export async function findProjectByChannel(
-  channelId: string,
-): Promise<Project | undefined> {
+export async function findProjectByChannel(channelId: string): Promise<Project | undefined> {
   const projects = await loadProjects();
   return projects.find((p) => p.config.channelId === channelId);
 }

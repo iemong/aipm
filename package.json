@@ -8,11 +8,19 @@
     "setup": "bun run scripts/setup.ts",
     "project:create": "bun run scripts/project.ts create",
     "project:list": "bun run scripts/project.ts list",
-    "test:hitl": "bun run scripts/test-hitl.ts"
+    "test:hitl": "bun run scripts/test-hitl.ts",
+    "test": "bun test",
+    "lint": "oxlint src/",
+    "fmt": "oxfmt --write src/ scripts/ rules.ts bash-whitelist.ts",
+    "fmt:check": "oxfmt --check src/ scripts/ rules.ts bash-whitelist.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.2",
     "@slack/bolt": "^4.1.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.56.0"
   }
 }

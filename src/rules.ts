@@ -86,10 +86,7 @@ export function getMessageRule(channelId: string): MessageRule | undefined {
   return rules?.channels[channelId]?.on_message;
 }
 
-export function getReactionRule(
-  channelId: string,
-  reaction: string,
-): ReactionRule | undefined {
+export function getReactionRule(channelId: string, reaction: string): ReactionRule | undefined {
   return rules?.channels[channelId]?.on_reaction?.[reaction];
 }
 

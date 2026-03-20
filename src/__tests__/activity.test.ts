@@ -60,9 +60,7 @@ describe("createActivity", () => {
       trigger: "Test with permalink",
       slack_permalink: "https://slack.com/archives/C123/p456",
     });
-    expect(activity.meta.slack_permalink).toBe(
-      "https://slack.com/archives/C123/p456",
-    );
+    expect(activity.meta.slack_permalink).toBe("https://slack.com/archives/C123/p456");
   });
 });
 
@@ -97,12 +95,7 @@ describe("appendToActivity", () => {
 
   test("進捗セクションに追記できる", async () => {
     const files = await readdir(activityDir);
-    const ok = await appendToActivity(
-      TEST_SLUG,
-      files[0],
-      "進捗",
-      "- [ ] 原因調査",
-    );
+    const ok = await appendToActivity(TEST_SLUG, files[0], "進捗", "- [ ] 原因調査");
     expect(ok).toBe(true);
 
     const content = await readFile(join(activityDir, files[0]), "utf-8");
@@ -111,12 +104,7 @@ describe("appendToActivity", () => {
 
   test("成果セクションに追記できる", async () => {
     const files = await readdir(activityDir);
-    const ok = await appendToActivity(
-      TEST_SLUG,
-      files[0],
-      "成果",
-      "- 根本原因を特定",
-    );
+    const ok = await appendToActivity(TEST_SLUG, files[0], "成果", "- 根本原因を特定");
     expect(ok).toBe(true);
 
     const content = await readFile(join(activityDir, files[0]), "utf-8");
@@ -151,9 +139,7 @@ describe("listActivities", () => {
     const investigating = await listActivities(TEST_SLUG, {
       status: "investigating",
     });
-    expect(investigating.every((a) => a.meta.status === "investigating")).toBe(
-      true,
-    );
+    expect(investigating.every((a) => a.meta.status === "investigating")).toBe(true);
   });
 
   test("存在しないプロジェクトは空配列", async () => {

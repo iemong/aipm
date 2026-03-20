@@ -60,18 +60,14 @@ async function create() {
   }
   const slugDup = existing.find((p) => p.slug === slug);
   if (slugDup) {
-    console.error(
-      `  エラー: スラッグ "${slug}" は既に使用されています。`,
-    );
+    console.error(`  エラー: スラッグ "${slug}" は既に使用されています。`);
     process.exit(1);
   }
 
   // ---- Step 3: GitHub ----
   console.log("");
   console.log("[Step 3/4] GitHub (optional)");
-  const githubInput = await ask(
-    "  リポジトリ (owner/repo, Enterでスキップ): ",
-  );
+  const githubInput = await ask("  リポジトリ (owner/repo, Enterでスキップ): ");
   let github: { owner: string; repo: string } | undefined;
   if (githubInput && githubInput.includes("/")) {
     const [owner, repo] = githubInput.split("/", 2);
@@ -222,11 +218,8 @@ async function list() {
 
     console.log(`    Channel: ${p.config.channelId}`);
     if (p.config.github)
-      console.log(
-        `    GitHub:  ${p.config.github.owner}/${p.config.github.repo}`,
-      );
-    if (p.config.description)
-      console.log(`    ${p.config.description}`);
+      console.log(`    GitHub:  ${p.config.github.owner}/${p.config.github.repo}`);
+    if (p.config.description) console.log(`    ${p.config.description}`);
     if (p.config.resources) {
       const res = p.config.resources;
       if (res.directories.length > 0) {
@@ -236,7 +229,9 @@ async function list() {
         console.log(`    Links:   ${res.links.map((l) => l.label).join(", ")}`);
       }
       if (res.instructions) {
-        console.log(`    指示:    ${res.instructions.slice(0, 60)}${res.instructions.length > 60 ? "..." : ""}`);
+        console.log(
+          `    指示:    ${res.instructions.slice(0, 60)}${res.instructions.length > 60 ? "..." : ""}`,
+        );
       }
     }
     console.log("");

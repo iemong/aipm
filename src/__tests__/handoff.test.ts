@@ -2,10 +2,7 @@ import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import { mkdir, rm, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseHandoffFromResult } from "../handoff";
-import {
-  createActivity,
-  appendHandoffPrompt,
-} from "../activity";
+import { createActivity, appendHandoffPrompt } from "../activity";
 import { getProjectsDir } from "../project";
 
 // --------------------------------------------------

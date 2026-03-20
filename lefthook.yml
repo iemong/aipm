@@ -1,0 +1,14 @@
+pre-commit:
+  parallel: true
+  commands:
+    oxfmt:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: bunx oxfmt --check {staged_files}
+    oxlint:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: bunx oxlint {staged_files}
+
+pre-push:
+  commands:
+    test:
+      run: bun test

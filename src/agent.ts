@@ -8,10 +8,7 @@ const PROJECT_ROOT = resolve(import.meta.dir, "..");
  * Claude Agent SDKにプロンプトを送信し、結果を返す
  * contextKeyごとにセッションを維持し、会話を継続できる
  */
-export async function askAgent(
-  prompt: string,
-  contextKey: string,
-): Promise<string> {
+export async function askAgent(prompt: string, contextKey: string): Promise<string> {
   let resultText = "";
 
   try {
@@ -24,13 +21,7 @@ export async function askAgent(
         cwd: PROJECT_ROOT,
         settingSources: ["project", "user"],
         systemPrompt: { type: "preset", preset: "claude_code" },
-        allowedTools: [
-          "Read",
-          "Glob",
-          "Grep",
-          "mcp__github__*",
-          "mcp__mimamori_bash__*",
-        ],
+        allowedTools: ["Read", "Glob", "Grep", "mcp__github__*", "mcp__mimamori_bash__*"],
         disallowedTools: ["Edit", "Write", "Bash"],
         permissionMode: "bypassPermissions",
         maxTurns: 15,
